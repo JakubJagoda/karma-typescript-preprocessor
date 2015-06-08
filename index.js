@@ -37,7 +37,9 @@ var createTypeScriptPreprocessor = function(args, config, logger, helper) {
 
 				if (opts.sourceMap) {
 					sourceMapAsDataUri(content, file, function(datauri) {
-						fs.unlinkSync(file.sourceMapPath);
+						if(fs.existsSync(file.sourceMapPath)) {
+							fs.unlinkSync(file.sourceMapPath);
+						}
 						output = output.replace(/\/\/# sourceMappingURL=.+\.js\.map\r?\n?/i, '');
 						output += '\n//@ sourceMappingURL=' + datauri + '\n';
 						done(output);
@@ -91,7 +93,9 @@ function tsc(file, content, typings, options, callback, log) {
 		log.error(err);
 	});
 
-	fs.unlinkSync(input);
+	if (fs.existsSync(input)) {
+		fs.unlinkSync(input);
+	}
 
 	if (fs.existsSync(file.path)) {
 		fs.unlinkSync(file.path);
@@ -104,7 +108,11 @@ function tsc(file, content, typings, options, callback, log) {
 			callback(error, null);
 			return;
 		}
-		fs.unlinkSync(output);
+
+		if (fs.existsSync(output)) {
+			fs.unlinkSync(output);
+		}
+
 		callback(null, content);
 	});
 }
